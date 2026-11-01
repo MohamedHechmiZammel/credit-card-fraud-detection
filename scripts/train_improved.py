@@ -5,8 +5,9 @@ Steps
   2. XGBoost with scale_pos_weight, small search scored by validation PR-AUC
   3. operating threshold = best F1 on the validation split (never the test set)
   4. report precision, recall, F1, PR-AUC, ROC-AUC, confusion matrix on the test set
-  5. baseline for comparison: the original best XGBoost params, no weighting, threshold 0.5,
-     trained and tested on the same split
+  5. baselines for comparison on the same split: always-legit Dummy, scaled Logistic Regression
+     (balanced), and the original best XGBoost params with no weighting
+  6. calibration of the class-weighted model: Brier score and reliability curve
 """
 import itertools
 import json
@@ -20,13 +21,14 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
-from sklearn.metrics import average_precision_score, precision_recall_curve, roc_curve  # noqa: E402
+from sklearn.calibration import calibration_curve  # noqa: E402
+from sklearn.metrics import average_precision_score, brier_score_loss, precision_recall_curve, roc_curve  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from fraud.data import FEATURES, TARGET, load_data  # noqa: E402
 from fraud.metrics import evaluate  # noqa: E402
-from fraud.model import make_xgb, pos_weight, stratified_split  # noqa: E402
+from fraud.model import load_xgb_params, make_dummy, make_logreg, make_xgb, pos_weight, stratified_split  # noqa: E402
 from fraud.threshold import choose_threshold  # noqa: E402
 
 FIG = ROOT / "reports" / "figures"
@@ -41,8 +43,7 @@ def main() -> None:
     print(f"train {len(y_tr)} val {len(y_va)} test {len(y_te)}; test frauds {int(y_te.sum())}; neg/pos {ratio:.0f}")
 
     # Baseline: original best params (from reproduce.py xgb), no class weighting, threshold 0.5
-    repro = ROOT / "reports" / "reproduction_xgb_accuracy.json"
-    base_params = json.loads(repro.read_text())["best_params"] if repro.exists() else {}
+    base_params = load_xgb_params(ROOT / "reports" / "reproduction_xgb_accuracy.json")
     base = make_xgb(**base_params).fit(X_tr, y_tr)
     base_te = base.predict_proba(X_te)[:, 1]
     base_metrics = evaluate(y_te, base_te, 0.5)
@@ -68,6 +69,24 @@ def main() -> None:
     base_tuned = evaluate(y_te, base_te, base_thr)
     thr_r85 = choose_threshold(y_va, p_va, min_recall=0.85)
     imp_r85 = evaluate(y_te, p_te, thr_r85)
+
+    # Simple baselines: always legit (nothing to tune), scaled logistic regression with a validation threshold
+    dummy_metrics = evaluate(y_te, make_dummy().fit(X_tr, y_tr).predict_proba(X_te)[:, 1], 0.5)
+    logreg = make_logreg().fit(X_tr, y_tr)
+    lr_va, lr_te = logreg.predict_proba(X_va)[:, 1], logreg.predict_proba(X_te)[:, 1]
+    logreg_half = evaluate(y_te, lr_te, 0.5)
+    logreg_tuned = evaluate(y_te, lr_te, choose_threshold(y_va, lr_va))
+
+    # Calibration of the raw scores (test set). scale_pos_weight shifts scores upward on purpose.
+    calibration = {
+        "brier_class_weighted": float(brier_score_loss(y_te, p_te)),
+        "brier_original_params_unweighted": float(brier_score_loss(y_te, base_te)),
+        "brier_logreg_balanced": float(brier_score_loss(y_te, lr_te)),
+        "brier_constant_prevalence": float(brier_score_loss(y_te, np.full(len(y_te), y_tr.mean()))),
+        "mean_score_class_weighted": float(p_te.mean()),
+        "mean_score_original_params_unweighted": float(base_te.mean()),
+        "observed_fraud_rate": float(y_te.mean()),
+    }
     print("baseline@0.5", base_metrics)
     print("improved@val-thr", imp_metrics)
 
@@ -77,6 +96,10 @@ def main() -> None:
         "baseline_original_params_thr0.5": base_metrics,
         "baseline_original_params_val_threshold": base_tuned,
         "baseline_params": base_params,
+        "dummy_always_legit": dummy_metrics,
+        "logreg_balanced_thr0.5": logreg_half,
+        "logreg_balanced_val_threshold": logreg_tuned,
+        "calibration": calibration,
         "improved": imp_metrics,
         "improved_at_thr0.5": imp_at_half,
         "improved_min_recall_0.85": imp_r85,
@@ -142,6 +165,17 @@ def main() -> None:
     ax.barh([a for a, _ in imp], [b for _, b in imp], color="#1b6ca8")
     ax.set(title="Top 12 feature importances (gain-based)", xlabel="importance")
     fig.tight_layout(); fig.savefig(FIG / "feature_importance.png"); plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(5.5, 4.5))
+    ax.plot([0, 1], [0, 1], ":", color="#bbbbbb", label="perfectly calibrated")
+    for name, p, c in [("Original params, no weighting", base_te, "#888888"),
+                       ("Class-weighted (demo model)", p_te, "#1b6ca8")]:
+        frac_pos, mean_pred = calibration_curve(y_te, p, n_bins=10, strategy="uniform")
+        ax.plot(mean_pred, frac_pos, "o-", color=c, label=name)
+    ax.set(xlabel="Mean predicted score", ylabel="Observed fraud rate", xlim=(0, 1), ylim=(0, 1.02),
+           title=f"Reliability curve (test set), Brier {calibration['brier_class_weighted']:.5f}")
+    ax.legend(loc="upper left", fontsize=8)
+    fig.tight_layout(); fig.savefig(FIG / "calibration.png"); plt.close(fig)
     print("saved model, figures, sample.csv")
 
 
