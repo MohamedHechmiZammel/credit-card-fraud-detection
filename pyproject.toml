@@ -1,0 +1,13 @@
+[tool.ruff]
+line-length = 140
+target-version = "py312"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+# one-line "fig.tight_layout(); fig.savefig(...)" plotting style
+"scripts/train_improved.py" = ["E702"]
+# report text is long prose inside f-strings
+"scripts/make_report.py" = ["E501"]

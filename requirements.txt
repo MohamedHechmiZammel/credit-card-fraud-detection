@@ -5,4 +5,3 @@ xgboost==3.4.1
 matplotlib==3.11.2
 gradio==6.31.0
 joblib==1.6.0
-pytest==9.2.0
