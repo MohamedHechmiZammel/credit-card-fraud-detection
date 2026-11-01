@@ -6,17 +6,20 @@ Original recipe (from the notebook and the deck):
   - train_test_split(test_size=0.3, random_state=42), not stratified
     (the deck's confusion matrix sums to 85,443 = 30% of 284,807; the notebook
     text says 0.25, the deck output only fits 0.3)
-  - GridSearchCV(cv=5, scoring="roc_auc")
+  - GridSearchCV(cv=5). The notebook text says scoring="roc_auc", but the deck's Decision Tree
+    numbers only come out with scikit-learn's default scoring (accuracy). The default here is
+    accuracy so the quickstart matches the deck. `--scoring roc_auc` follows the notebook text
+    and gives a different Decision Tree (20 FP, 30 FN against the deck's 17 FP, 27 FN).
   - Decision Tree grid: max_depth [10,20,30], min_samples_split [2,5,10], criterion [gini, entropy]
   - XGBoost grid: n_estimators [50,100,200], max_depth [3,5,7],
     learning_rate [0.01,0.1,0.2], booster [gbtree, dart]
 
-The scaler leaks test statistics into training. It is kept here on purpose to
-match the original; the improved pipeline in train_improved.py fixes it.
+LEAKAGE: the scaler is fitted on all rows before the split, so test statistics leak into
+training. It is kept here only to reproduce the original; train_improved.py does not do it.
 
 Usage:
-  python scripts/reproduce.py dt
-  python scripts/reproduce.py dt --scoring accuracy   # sklearn's default scoring, see results.md
+  python scripts/reproduce.py dt             # scoring=accuracy, matches the deck
+  python scripts/reproduce.py dt --scoring roc_auc   # as written in the notebook, see results.md
   python scripts/reproduce.py xgb            # full 54-combo grid
   python scripts/reproduce.py xgb --params '{"n_estimators":200,...}'   # skip search
 """
@@ -26,7 +29,6 @@ import sys
 import time
 from pathlib import Path
 
-import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -50,7 +52,8 @@ def main() -> None:
     ap.add_argument("model", choices=["dt", "xgb"])
     ap.add_argument("--test-size", type=float, default=0.3)
     ap.add_argument("--params", type=json.loads, default=None, help="skip the grid search, fit these params")
-    ap.add_argument("--scoring", default="roc_auc", help="GridSearchCV scoring (the notebook used roc_auc)")
+    ap.add_argument("--scoring", default="accuracy",
+                    help="GridSearchCV scoring. accuracy (default) matches the deck; the notebook text says roc_auc")
     ap.add_argument("--n-jobs", type=int, default=1, help="GridSearchCV workers")
     args = ap.parse_args()
 
