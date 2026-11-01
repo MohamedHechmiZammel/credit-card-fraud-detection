@@ -1,0 +1,348 @@
+{
+  "currency": "EUR",
+  "review_caught_fraud": false,
+  "default_false_alarm_cost": 5.0,
+  "amount_weight": {
+    "rule": "fraud rows: min(1 + Amount / median fraud Amount in train, cap); legit rows: 1",
+    "cap": 20.0,
+    "scale_pos_weight": 1.0
+  },
+  "test": {
+    "rows": 56962,
+    "frauds": 98,
+    "fraud_amount_total": 10644.93,
+    "fraud_amount_median": 10.344999999999999
+  },
+  "by_false_alarm_cost": {
+    "1.0": [
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 2995.58,
+        "no_model_cost": 10644.93,
+        "saved": 7649.35,
+        "missed_fraud_amount": 2993.58,
+        "false_alarms": 2,
+        "missed_frauds": 24,
+        "caught_frauds": 74
+      },
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.39427345991134644,
+        "cost": 2790.5299999999997,
+        "no_model_cost": 10644.93,
+        "saved": 7854.400000000001,
+        "missed_fraud_amount": 2786.5299999999997,
+        "false_alarms": 4,
+        "missed_frauds": 22,
+        "caught_frauds": 76
+      },
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.00114792853128165,
+        "cost": 1611.71,
+        "no_model_cost": 10644.93,
+        "saved": 9033.220000000001,
+        "missed_fraud_amount": 1293.71,
+        "false_alarms": 318,
+        "missed_frauds": 9,
+        "caught_frauds": 89
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 1944.71,
+        "no_model_cost": 10644.93,
+        "saved": 8700.220000000001,
+        "missed_fraud_amount": 1932.71,
+        "false_alarms": 12,
+        "missed_frauds": 16,
+        "caught_frauds": 82
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.8519513010978699,
+        "cost": 2399.24,
+        "no_model_cost": 10644.93,
+        "saved": 8245.69,
+        "missed_fraud_amount": 2393.24,
+        "false_alarms": 6,
+        "missed_frauds": 20,
+        "caught_frauds": 78
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.0032351098489016294,
+        "cost": 2096.71,
+        "no_model_cost": 10644.93,
+        "saved": 8548.220000000001,
+        "missed_fraud_amount": 1293.71,
+        "false_alarms": 803,
+        "missed_frauds": 9,
+        "caught_frauds": 89
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 1942.71,
+        "no_model_cost": 10644.93,
+        "saved": 8702.220000000001,
+        "missed_fraud_amount": 1934.71,
+        "false_alarms": 8,
+        "missed_frauds": 18,
+        "caught_frauds": 80
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.23061102628707886,
+        "cost": 1847.7200000000003,
+        "no_model_cost": 10644.93,
+        "saved": 8797.21,
+        "missed_fraud_amount": 1832.7200000000003,
+        "false_alarms": 15,
+        "missed_frauds": 15,
+        "caught_frauds": 83
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.0017846249975264072,
+        "cost": 2465.71,
+        "no_model_cost": 10644.93,
+        "saved": 8179.22,
+        "missed_fraud_amount": 1822.71,
+        "false_alarms": 643,
+        "missed_frauds": 10,
+        "caught_frauds": 88
+      }
+    ],
+    "5.0": [
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 3003.58,
+        "no_model_cost": 10644.93,
+        "saved": 7641.35,
+        "missed_fraud_amount": 2993.58,
+        "false_alarms": 2,
+        "missed_frauds": 24,
+        "caught_frauds": 74
+      },
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.39427345991134644,
+        "cost": 2806.5299999999997,
+        "no_model_cost": 10644.93,
+        "saved": 7838.400000000001,
+        "missed_fraud_amount": 2786.5299999999997,
+        "false_alarms": 4,
+        "missed_frauds": 22,
+        "caught_frauds": 76
+      },
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.7811782956123352,
+        "cost": 3004.58,
+        "no_model_cost": 10644.93,
+        "saved": 7640.35,
+        "missed_fraud_amount": 2994.58,
+        "false_alarms": 2,
+        "missed_frauds": 25,
+        "caught_frauds": 73
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 1992.71,
+        "no_model_cost": 10644.93,
+        "saved": 8652.220000000001,
+        "missed_fraud_amount": 1932.71,
+        "false_alarms": 12,
+        "missed_frauds": 16,
+        "caught_frauds": 82
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.8519513010978699,
+        "cost": 2423.24,
+        "no_model_cost": 10644.93,
+        "saved": 8221.69,
+        "missed_fraud_amount": 2393.24,
+        "false_alarms": 6,
+        "missed_frauds": 20,
+        "caught_frauds": 78
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.16654780507087708,
+        "cost": 1956.7200000000003,
+        "no_model_cost": 10644.93,
+        "saved": 8688.21,
+        "missed_fraud_amount": 1831.7200000000003,
+        "false_alarms": 25,
+        "missed_frauds": 14,
+        "caught_frauds": 84
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 1974.71,
+        "no_model_cost": 10644.93,
+        "saved": 8670.220000000001,
+        "missed_fraud_amount": 1934.71,
+        "false_alarms": 8,
+        "missed_frauds": 18,
+        "caught_frauds": 80
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.23061102628707886,
+        "cost": 1907.7200000000003,
+        "no_model_cost": 10644.93,
+        "saved": 8737.21,
+        "missed_fraud_amount": 1832.7200000000003,
+        "false_alarms": 15,
+        "missed_frauds": 15,
+        "caught_frauds": 83
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.021460210904479027,
+        "cost": 2185.72,
+        "no_model_cost": 10644.93,
+        "saved": 8459.210000000001,
+        "missed_fraud_amount": 1830.7199999999998,
+        "false_alarms": 71,
+        "missed_frauds": 13,
+        "caught_frauds": 85
+      }
+    ],
+    "20.0": [
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 3033.58,
+        "no_model_cost": 10644.93,
+        "saved": 7611.35,
+        "missed_fraud_amount": 2993.58,
+        "false_alarms": 2,
+        "missed_frauds": 24,
+        "caught_frauds": 74
+      },
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.39427345991134644,
+        "cost": 2866.5299999999997,
+        "no_model_cost": 10644.93,
+        "saved": 7778.400000000001,
+        "missed_fraud_amount": 2786.5299999999997,
+        "false_alarms": 4,
+        "missed_frauds": 22,
+        "caught_frauds": 76
+      },
+      {
+        "model": "XGBoost, original params",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.7811782956123352,
+        "cost": 3034.58,
+        "no_model_cost": 10644.93,
+        "saved": 7610.35,
+        "missed_fraud_amount": 2994.58,
+        "false_alarms": 2,
+        "missed_frauds": 25,
+        "caught_frauds": 73
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 2172.71,
+        "no_model_cost": 10644.93,
+        "saved": 8472.220000000001,
+        "missed_fraud_amount": 1932.71,
+        "false_alarms": 12,
+        "missed_frauds": 16,
+        "caught_frauds": 82
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.8519513010978699,
+        "cost": 2513.24,
+        "no_model_cost": 10644.93,
+        "saved": 8131.6900000000005,
+        "missed_fraud_amount": 2393.24,
+        "false_alarms": 6,
+        "missed_frauds": 20,
+        "caught_frauds": 78
+      },
+      {
+        "model": "XGBoost, class-weighted",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.16654780507087708,
+        "cost": 2331.7200000000003,
+        "no_model_cost": 10644.93,
+        "saved": 8313.21,
+        "missed_fraud_amount": 1831.7200000000003,
+        "false_alarms": 25,
+        "missed_frauds": 14,
+        "caught_frauds": 84
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "0.5",
+        "threshold": 0.5,
+        "cost": 2094.71,
+        "no_model_cost": 10644.93,
+        "saved": 8550.220000000001,
+        "missed_fraud_amount": 1934.71,
+        "false_alarms": 8,
+        "missed_frauds": 18,
+        "caught_frauds": 80
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "best F1 on validation",
+        "threshold": 0.23061102628707886,
+        "cost": 2132.7200000000003,
+        "no_model_cost": 10644.93,
+        "saved": 8512.21,
+        "missed_fraud_amount": 1832.7200000000003,
+        "false_alarms": 15,
+        "missed_frauds": 15,
+        "caught_frauds": 83
+      },
+      {
+        "model": "XGBoost, amount-weighted",
+        "threshold_rule": "min cost on validation",
+        "threshold": 0.9253271818161011,
+        "cost": 2331.78,
+        "no_model_cost": 10644.93,
+        "saved": 8313.15,
+        "missed_fraud_amount": 2271.78,
+        "false_alarms": 3,
+        "missed_frauds": 24,
+        "caught_frauds": 74
+      }
+    ]
+  }
+}
