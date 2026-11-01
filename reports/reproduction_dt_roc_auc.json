@@ -1,0 +1,23 @@
+{
+  "model": "dt",
+  "grid_searched": true,
+  "best_params": {
+    "criterion": "entropy",
+    "max_depth": 10,
+    "min_samples_split": 10
+  },
+  "scoring": "roc_auc",
+  "cv_score": 0.9018393310195266,
+  "test_size": 0.3,
+  "n_test": 85443,
+  "tn": 85287,
+  "fp": 20,
+  "fn": 30,
+  "tp": 106,
+  "accuracy": 0.9994148145547324,
+  "precision": 0.8412698412698413,
+  "recall": 0.7794117647058824,
+  "f1": 0.8091603053435115,
+  "roc_auc": 0.9106823262555518,
+  "seconds": 730.8
+}

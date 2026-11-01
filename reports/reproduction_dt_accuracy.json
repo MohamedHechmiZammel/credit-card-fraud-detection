@@ -1,0 +1,23 @@
+{
+  "model": "dt",
+  "grid_searched": true,
+  "best_params": {
+    "criterion": "gini",
+    "max_depth": 10,
+    "min_samples_split": 10
+  },
+  "scoring": "accuracy",
+  "cv_score": 0.9993679901081599,
+  "test_size": 0.3,
+  "n_test": 85443,
+  "tn": 85290,
+  "fp": 17,
+  "fn": 27,
+  "tp": 109,
+  "accuracy": 0.9994850368081645,
+  "precision": 0.8650793650793651,
+  "recall": 0.8014705882352942,
+  "f1": 0.8320610687022901,
+  "roc_auc": 0.9074676393703295,
+  "seconds": 730.4
+}

@@ -1,0 +1,24 @@
+{
+  "model": "xgb",
+  "grid_searched": true,
+  "best_params": {
+    "booster": "gbtree",
+    "learning_rate": 0.1,
+    "max_depth": 5,
+    "n_estimators": 200
+  },
+  "scoring": "accuracy",
+  "cv_score": 0.9995435488866959,
+  "test_size": 0.3,
+  "n_test": 85443,
+  "tn": 85300,
+  "fp": 7,
+  "fn": 29,
+  "tp": 107,
+  "accuracy": 0.9995786664794073,
+  "precision": 0.9385964912280702,
+  "recall": 0.7867647058823529,
+  "f1": 0.856,
+  "roc_auc": 0.9877414204337414,
+  "seconds": 1287.2
+}
