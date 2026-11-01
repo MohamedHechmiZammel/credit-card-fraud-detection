@@ -1,0 +1,88 @@
+{
+  "split": {
+    "train": 170883,
+    "val": 56962,
+    "test": 56962,
+    "test_frauds": 98,
+    "seed": 42,
+    "stratified": true
+  },
+  "baseline_original_params_thr0.5": {
+    "threshold": 0.5,
+    "precision": 0.9736842105263158,
+    "recall": 0.7551020408163265,
+    "f1": 0.8505747126436781,
+    "pr_auc": 0.8711858340691807,
+    "roc_auc": 0.9745481162358021,
+    "accuracy": 0.9995435553526912,
+    "tn": 56862,
+    "fp": 2,
+    "fn": 24,
+    "tp": 74
+  },
+  "baseline_original_params_val_threshold": {
+    "threshold": 0.39427345991134644,
+    "precision": 0.95,
+    "recall": 0.7755102040816326,
+    "f1": 0.8539325842696629,
+    "pr_auc": 0.8711858340691807,
+    "roc_auc": 0.9745481162358021,
+    "accuracy": 0.9995435553526912,
+    "tn": 56860,
+    "fp": 4,
+    "fn": 22,
+    "tp": 76
+  },
+  "baseline_params": {
+    "booster": "gbtree",
+    "learning_rate": 0.1,
+    "max_depth": 5,
+    "n_estimators": 200
+  },
+  "improved": {
+    "threshold": 0.8519513010978699,
+    "precision": 0.9285714285714286,
+    "recall": 0.7959183673469388,
+    "f1": 0.8571428571428571,
+    "pr_auc": 0.8656947838298099,
+    "roc_auc": 0.9778547885107898,
+    "accuracy": 0.9995435553526912,
+    "tn": 56858,
+    "fp": 6,
+    "fn": 20,
+    "tp": 78
+  },
+  "improved_at_thr0.5": {
+    "threshold": 0.5,
+    "precision": 0.8723404255319149,
+    "recall": 0.8367346938775511,
+    "f1": 0.8541666666666666,
+    "pr_auc": 0.8656947838298099,
+    "roc_auc": 0.9778547885107898,
+    "accuracy": 0.9995084442259752,
+    "tn": 56852,
+    "fp": 12,
+    "fn": 16,
+    "tp": 82
+  },
+  "improved_min_recall_0.85": {
+    "threshold": 0.009735161438584328,
+    "precision": 0.2268041237113402,
+    "recall": 0.8979591836734694,
+    "f1": 0.36213991769547327,
+    "pr_auc": 0.8656947838298099,
+    "roc_auc": 0.9778547885107898,
+    "accuracy": 0.9945577753590112,
+    "tn": 56564,
+    "fp": 300,
+    "fn": 10,
+    "tp": 88
+  },
+  "improved_params": {
+    "scale_pos_weight": 24.04712886769772,
+    "max_depth": 3,
+    "n_estimators_used": 317,
+    "learning_rate": 0.1
+  },
+  "val_pr_auc": 0.8301461105369894
+}
