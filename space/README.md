@@ -15,7 +15,8 @@ short_description: XGBoost fraud scoring with a validation-chosen threshold
 # Credit card fraud detection demo
 
 Pick one of 200 held-out sample transactions (40 frauds, 160 legitimate), move the decision threshold, and see the
-fraud probability, the decision and the precision-recall curve. The model is XGBoost with class weighting trained on
-the ULB credit card fraud dataset. The sample is enriched with frauds, so the curve is illustrative only.
+fraud score, the decision and the precision-recall curve. The model is XGBoost with class weighting trained on
+the ULB credit card fraud dataset. The score is the raw model output, not a calibrated probability.
+The sample is enriched with frauds, so the curve is illustrative only.
 
 Source code, training scripts, tests and results: see the project repository.

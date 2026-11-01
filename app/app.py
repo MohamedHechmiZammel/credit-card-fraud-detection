@@ -1,4 +1,7 @@
-"""Gradio demo: pick a sample transaction, see the fraud probability and the decision.
+"""Gradio demo: pick a sample transaction, see the fraud score and the decision.
+
+The score is the raw XGBoost output of a class-weighted model. It ranks transactions well but is not a
+calibrated probability (scale_pos_weight pushes scores up), so it is never shown as one.
 
 Works in two layouts:
   repo:   app/app.py with models/ and data/ next to it
@@ -13,7 +16,6 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from sklearn.metrics import average_precision_score, precision_recall_curve
 
@@ -61,7 +63,7 @@ def score(index: int, threshold: float):
     flagged = prob >= threshold
     decision = "FRAUD ALERT: block and review" if flagged else "Looks legitimate: approve"
     truth = "fraud" if int(row["Class"].iloc[0]) == 1 else "legitimate"
-    detail = f"Fraud probability {prob:.4f} against threshold {threshold:.2f}. True label: {truth}."
+    detail = f"Fraud score {prob:.4f} against threshold {threshold:.2f}. True label: {truth}."
     show = row[["Time", "Amount", "V1", "V2", "V3", "V4", "V14"]].round(3)
     return round(prob, 4), decision, detail, show, pr_figure(threshold, index)
 
@@ -70,7 +72,8 @@ with gr.Blocks(title="Credit card fraud detection") as demo:
     gr.Markdown(
         "# Credit card fraud detection\n"
         "XGBoost with class weighting, trained on the ULB credit card dataset. The decision threshold was "
-        "chosen on a validation split. The 200 sample transactions come from the held-out test split and "
+        "chosen on a validation split. The output is a fraud score, not a calibrated probability: use it to rank "
+        "transactions, not to read a risk percentage. The 200 sample transactions come from the held-out test split and "
         "contain 20% frauds, far more than the real rate of 0.17%, so the curve below is only illustrative."
     )
     with gr.Row():
@@ -78,7 +81,7 @@ with gr.Blocks(title="Credit card fraud detection") as demo:
             idx = gr.Slider(0, len(SAMPLE) - 1, value=0, step=1, label="Sample transaction")
             thr = gr.Slider(0.01, 0.99, value=DEFAULT_THRESHOLD, step=0.01, label="Decision threshold")
             btn = gr.Button("Score", variant="primary")
-            prob = gr.Number(label="Fraud probability")
+            prob = gr.Number(label="Fraud score (not a calibrated probability)")
             decision = gr.Textbox(label="Decision")
             detail = gr.Textbox(label="Detail")
             row = gr.Dataframe(label="Selected transaction (a few features)")
