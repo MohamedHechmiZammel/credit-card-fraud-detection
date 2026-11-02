@@ -3,7 +3,7 @@
 [![CI](https://github.com/MohamedHechmiZammel/credit-card-fraud-detection/actions/workflows/ci.yml/badge.svg)](https://github.com/MohamedHechmiZammel/credit-card-fraud-detection/actions/workflows/ci.yml)
 
 **TL;DR.** Fraud detection on the ULB credit card data (284,807 transactions, 0.17% fraud): a reproduction of a 2024 team project, then a rebuild with a leak-free split, cross-validation, baselines and a cost-based view in EUR. Honest result: XGBoost reaches F1 0.86 +- 0.02 and PR-AUC 0.86 +- 0.03 over 5 folds, and neither class weighting, amount weighting nor a cost-based threshold beats a plain XGBoost by more than that spread.
-Demo: coming soon (Hugging Face Space).
+Demo: [Hugging Face Space](https://huggingface.co/spaces/zammel/credit-card-fraud-detection). It scores in plain JavaScript and is verified against the Python model on 200 rows.
 
 Detects fraudulent card transactions with a Decision Tree and XGBoost, and judges them by precision, recall, F1, PR-AUC and money lost instead of accuracy. Originally built as a 5-person team project at ESPRIT (2024); this is my reproducible rebuild.
 

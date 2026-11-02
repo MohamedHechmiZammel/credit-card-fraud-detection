@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit card fraud detection</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f4f5f7;
+    --text: #1a1d21;
+    --muted: #5b6370;
+    --line: #d5d9df;
+    --fraud: #b3261e;
+    --legit: #1b6e3c;
+    --accent: #1f4fd8;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101215;
+      --surface: #1a1d22;
+      --text: #e8eaed;
+      --muted: #9aa3af;
+      --line: #343a43;
+      --fraud: #ff6b61;
+      --legit: #5fcf8a;
+      --accent: #7da2ff;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101215; --surface: #1a1d22; --text: #e8eaed; --muted: #9aa3af;
+    --line: #343a43; --fraud: #ff6b61; --legit: #5fcf8a; --accent: #7da2ff;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; border-radius: 0; box-shadow: none; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.4rem; line-height: 1.25; margin: 0 0 8px; }
+  h2 { font-size: 1rem; margin: 0 0 8px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  section { border-top: 1px solid var(--line); padding: 16px 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+  select, input, button {
+    font: inherit; color: var(--text); background: var(--bg);
+    border: 1px solid var(--line); padding: 8px; min-height: 44px; width: 100%;
+  }
+  select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  button { cursor: pointer; width: auto; padding: 8px 16px; background: var(--surface); }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+  .row > .grow { flex: 1 1 200px; min-width: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px 8px; }
+  .grid > div { min-width: 0; }
+  details { border: 1px solid var(--line); margin-top: 12px; }
+  summary { cursor: pointer; padding: 12px; min-height: 44px; background: var(--surface); }
+  details .grid { padding: 12px; }
+  .edited input.changed { border-color: var(--accent); }
+  .result { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+  .badge { font-weight: 700; letter-spacing: 0.04em; padding: 6px 14px; color: var(--bg); }
+  .badge.fraud { background: var(--fraud); }
+  .badge.legit { background: var(--legit); }
+  .prob { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bar { position: relative; height: 20px; background: var(--surface); border: 1px solid var(--line); margin: 20px 0 4px; }
+  .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--legit); }
+  .fill.fraud { background: var(--fraud); }
+  .marker { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--text); }
+  .marker-label { position: absolute; top: -22px; transform: translateX(-50%); font-size: 0.75rem; white-space: nowrap; color: var(--muted); }
+  .scale { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+  dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .truth { font-weight: 700; }
+  #err { color: var(--fraud); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Credit card fraud detection</h1>
+  <p class="muted">XGBoost trained on the ULB credit card dataset, scored in your browser by plain JavaScript. Pick a sample transaction or edit any feature.</p>
+  <p id="err" role="alert"></p>
+
+  <section aria-labelledby="h-pick">
+    <h2 id="h-pick">Transaction</h2>
+    <div class="row">
+      <div class="grow">
+        <label for="pick">Sample row</label>
+        <select id="pick"></select>
+      </div>
+      <button id="reset" type="button">Reset</button>
+    </div>
+    <p class="muted" style="margin-top:8px">True label: <span id="truth" class="truth">-</span></p>
+    <div class="grid" id="main-inputs"></div>
+    <details id="vbox">
+      <summary>Anonymised features V1 to V28</summary>
+      <div class="grid" id="v-inputs"></div>
+    </details>
+  </section>
+
+  <section aria-labelledby="h-res" aria-live="polite">
+    <h2 id="h-res">Result</h2>
+    <div class="result">
+      <span id="badge" class="badge legit">-</span>
+      <span class="prob" id="prob">-</span>
+    </div>
+    <div class="bar" role="img" id="bar" aria-label="Fraud score">
+      <div class="fill" id="fill"></div>
+      <div class="marker" id="marker"><span class="marker-label" id="marker-label"></span></div>
+    </div>
+    <div class="scale"><span>0</span><span>1</span></div>
+    <p class="muted" style="margin-top:8px">Flagged as fraud when the score is at or above the threshold. The score is the raw model output, not a calibrated probability.</p>
+  </section>
+
+  <section aria-labelledby="h-how">
+    <h2 id="h-how">How it was computed</h2>
+    <dl>
+      <dt>Base margin, logit(base score)</dt><dd id="o-base">-</dd>
+      <dt>Leaf sum over <span id="o-n">0</span> trees</dt><dd id="o-leaf">-</dd>
+      <dt>Total margin</dt><dd id="o-margin">-</dd>
+      <dt>Score, 1 / (1 + e^-margin)</dt><dd id="o-prob">-</dd>
+      <dt>Threshold</dt><dd id="o-thr">-</dd>
+    </dl>
+    <p class="muted" style="margin-top:12px">Each tree sends the row down numeric splits to one leaf. The leaf values add up, the sum is added to the base margin, and the sigmoid turns the margin into the score. A blank input counts as missing and goes to the right branch.</p>
+  </section>
+</main>
+
+<script type="module">
+import { loadModel, scoreRow } from "./score.js";
+
+const $ = (id) => document.getElementById(id);
+const fmt = (v, d = 6) => (Number.isFinite(v) ? v.toFixed(d) : String(v));
+
+function parseCsv(text) {
+  const lines = text.trim().split(/\r?\n/);
+  const cols = lines[0].split(",");
+  return { cols, rows: lines.slice(1).map((l) => l.split(",")) };
+}
+
+async function init() {
+  const t0 = performance.now();
+  const [mj, meta, csv] = await Promise.all([
+    fetch("model.json").then((r) => r.json()),
+    fetch("threshold.json").then((r) => r.json()),
+    fetch("sample.csv").then((r) => r.text()),
+  ]);
+  const model = loadModel(mj);
+  const thr = meta.threshold, features = meta.features;
+  const { cols, rows } = parseCsv(csv);
+  const fIdx = features.map((f) => cols.indexOf(f));
+  const cIdx = cols.indexOf("Class");
+  const data = rows.map((r) => ({ x: fIdx.map((j) => r[j]), cls: r[cIdx] === "1" ? 1 : 0 }));
+
+  // Row picker, grouped by true class
+  const pick = $("pick");
+  for (const [label, cls] of [["True fraud", 1], ["True legitimate", 0]]) {
+    const g = document.createElement("optgroup");
+    g.label = label;
+    data.forEach((d, i) => {
+      if (d.cls !== cls) return;
+      const o = document.createElement("option");
+      o.value = i;
+      o.textContent = `Row ${i}, amount ${fmt(Number(d.x[features.indexOf("Amount")]), 2)}`;
+      g.appendChild(o);
+    });
+    pick.appendChild(g);
+  }
+
+  // Inputs: Time and Amount up front, V1-V28 in the collapsible section
+  const inputs = [];
+  features.forEach((f, k) => {
+    const wrap = document.createElement("div");
+    const lab = document.createElement("label");
+    lab.textContent = f; lab.htmlFor = "f-" + f;
+    const inp = document.createElement("input");
+    inp.id = "f-" + f; inp.type = "number"; inp.step = "any"; inp.inputMode = "decimal";
+    inp.addEventListener("input", update);
+    wrap.append(lab, inp);
+    (/^V\d+$/.test(f) ? $("v-inputs") : $("main-inputs")).appendChild(wrap);
+    inputs[k] = inp;
+  });
+
+  $("o-n").textContent = model.trees.length;
+  $("o-base").textContent = fmt(model.baseMargin);
+  $("o-thr").textContent = fmt(thr);
+  $("marker").style.left = (thr * 100) + "%";
+  $("marker-label").textContent = "threshold " + thr.toFixed(3);
+  // keep the label inside the bar when the threshold sits near an edge
+  $("marker-label").style.transform = thr > 0.8 ? "translateX(-85%)" : "translateX(-50%)";
+
+  let current = 0;
+  function load(i) {
+    current = i;
+    data[i].x.forEach((v, k) => { inputs[k].value = v; });
+    $("truth").textContent = data[i].cls ? "FRAUD" : "LEGIT";
+    update();
+  }
+
+  function update() {
+    const x = inputs.map((inp) => (inp.value.trim() === "" ? NaN : Number(inp.value)));
+    const orig = data[current].x;
+    inputs.forEach((inp, k) => inp.classList.toggle("changed", Number(inp.value) !== Number(orig[k])));
+    const { margin, leafSum, prob } = scoreRow(model, x);
+    const fraud = prob >= thr;
+    $("badge").textContent = fraud ? "FRAUD" : "LEGIT";
+    $("badge").className = "badge " + (fraud ? "fraud" : "legit");
+    $("prob").textContent = prob.toFixed(4);
+    $("fill").style.width = (prob * 100) + "%";
+    $("fill").className = "fill" + (fraud ? " fraud" : "");
+    $("bar").setAttribute("aria-label", `Fraud score ${prob.toFixed(4)}, threshold ${thr.toFixed(3)}`);
+    $("o-leaf").textContent = fmt(leafSum);
+    $("o-margin").textContent = fmt(margin);
+    $("o-prob").textContent = fmt(prob, 8);
+  }
+
+  pick.addEventListener("change", () => load(Number(pick.value)));
+  $("reset").addEventListener("click", () => load(current));
+  pick.value = data.findIndex((d) => d.cls === 1);
+  load(Number(pick.value));
+  document.documentElement.dataset.loadMs = Math.round(performance.now() - t0);
+}
+
+init().catch((e) => { $("err").textContent = "Could not load the model: " + e.message + ". Serve this folder over http, file:// blocks fetch."; });
+</script>
+</body>
+</html>
